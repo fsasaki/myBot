@@ -1,25 +1,22 @@
 {
-  "name": "myBot",
+  "name": "myslackbot",
   "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
-  "dependencies": {
-    "request": "^2.81.0",
-    "twitter": "^1.7.0"
-  },
-  "devDependencies": {},
+  "description": "my slack bot",
+   "main": "app.js",
   "scripts": {
-    "start": "app.js"
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fsasaki/myBot.git"
+  "dependencies": {
+    "slackbots": "^1.0.2",
+    "request" : "^2.81.0",
+    "express" : "^4.15.2"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/fsasaki/myBot/issues"
-  },
-  "homepage": "https://github.com/fsasaki/myBot#readme"
+  "keywords": [
+    "bot",
+    "slack",
+    "nlu"
+  ],
+  "author": "fsasaki",
+  "license": "ISC"
 }

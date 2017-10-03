@@ -4,144 +4,170 @@ String.prototype.replaceAll = function (str1, str2, ignore)
         return "\\" + c;
     }), "g" + (ignore ? "i" : "")), str2);
 };
-var endpoint = "http://dbpedia.org/sparql?format=application%2Fsparql-results%2Bjson&CXML_redir_for_subjs=121&CXML_redir_for_hrefs=&timeout=30000&debug=on&query=";
-var queries = ["SELECT ?city ?population WHERE { ?city rdfs:label '@@@placeholder@@@'@en. ?city <http://dbpedia.org/ontology/populationTotal> ?population} LIMIT 10", "SELECT ?birthday WHERE { ?person rdfs:label '@@@placeholder@@@'@en. ?person <http://dbpedia.org/ontology/birthDate> ?birthday } LIMIT 10"];
-var responses = ["The population of @@@placeholder@@@ is @@@output@@@.", "The birthday of @@@placeholder@@@ is @@@output@@@."];
-var outputVariables = ["population", "birthday"];
-            var myDataBase = {"persons": [{"name": "Franz Schmidt", "department": "general IT", "qualifications": "mysql, php"},
-                    {"name": "Ina Mayer", "department": "general IT", "qualifications": "mysql, php, java"},
-                    {"name": "Sarah Schulz", "department": "IoT", "qualifications": "c++, java, mysql"}]};
+var config = require('./config');
+var userlanguage = "en";
+var languageconfirmation = config.languageconfirmation;
+var endpoint = config.endpoint;
+var queries = config.queries;
+var responses = config.responses;
+var outputVariables = config.outputVariables;
+var myDataBase = config.myDataBase;
+var waitmessage = config.waitmessage;
 var placeholder;
-var accessTokenAPIAI = "845fd3a89eba4ede94d90cd74825d007";
-var baseUrlAPIAI = "https://api.api.ai/v1/";
-var TwitterPackage = require('twitter');
-var secret = require("./secret");
+var accessTokenAPIAI = config.accessTokenAPIAI;
+var baseUrlAPIAI = config.baseUrlAPIAPI;
+var SlackBot = require('slackbots');
+var params = {
+    icon_emoji: ':cat:'
+};
+// create a bot
+var bot = new SlackBot({
+    token: config.slackbottoken, // Add a bot https://my.slack.com/services/new/bot and put the token
+    name: 'Lisa'
+});
 
-//make a new Twitter object
-var Twitter = new TwitterPackage(secret);
+bot.on('start', function () {
+    // more information about additional params https://api.slack.com/methods/chat.postMessage
+    var params = {
+        icon_emoji: ':cat:'
+    };
 
-// Call the stream function and pass in 'statuses/filter', our filter object, and our callback
+    // define channel, where bot exist. You can adjust it there https://my.slack.com/services
+    bot.postMessageToChannel('general', 'meow!', params);
 
-Twitter.stream('statuses/filter', {track: '@test14469'}, function (stream) {
-//Twitter.stream('direct_message', function(stream) {
-    // ... when we get tweet data...
-    stream.on('data', function (tweet) {
+});
+bot.on('message', function (data) {
 
-        // print out the text of the tweet that came in
-        console.log(tweet.text);
-        var question = tweet.text.replace("@test14469", '');
-        var request = require('request');
-        request({
-            url: baseUrlAPIAI + "query?v=20150910", //URL to hit
-            //qs: {from: 'blog example', time: +new Date()}, //Query string data
-            method: 'POST',
-            headers: {
-                'Content-Type': "application/json; charset=utf-8",
-                'Authorization': 'Bearer' + accessTokenAPIAI
-            },
-            body: JSON.stringify({query: question, lang: "en", sessionId: "somerandomthing"}) //Set the body as a string
-        }, function (error, response, responseBody) {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log(response.statusCode, responseBody);
-                var responseAsJson = JSON.parse(responseBody);
-                var intentNum;
+    // all ingoing events https://api.slack.com/rtm
 
-                //console.log(body);
-                if (responseAsJson.result.action === 'show.population') {
-                    intentNum = 0;
-                    placeholder = responseAsJson.result.parameters.city;
-                } else if (responseAsJson.result.action === 'show.birthday')
-                {
-                    intentNum = 1;
-                    placeholder = responseAsJson.result.parameters.givenname + " " + responseAsJson.result.parameters.lastname;
-                }
-                else if (responseAsJson.result.action === 'show.persons') {
-                    console.log(responseAsJson.result.parameters.programminglanguages);
-                    var output = findPersons(responseAsJson.result.parameters.programminglanguages);
-                     Twitter.post('statuses/update', {status: output.substring(0, 139)}, function (error, tweet, response) {
-                                if (error) {
-                                    console.log(error);
-                                }
-                                console.log(tweet);  // Tweet body.
-                                console.log(response);  // Raw response object.
-                            });
-                            return;
-                    } else return;;
-                ;
-                console.log("placeholder now :" + placeholder);
-                var queryComplete = queries[intentNum].replaceAll("@@@placeholder@@@", placeholder);
-                console.log(queryComplete);
-                request({
-                    url: endpoint + queryComplete,
-                    //qs: {from: 'blog example', time: +new Date()}, //Query string data
-                    type: 'POST',
-                    headers: {
-                    }
-                }, function (error, response, responseBody) {
-                    if (error) {
-                        console.log(error);
-                    } else {
-                        console.log(response.statusCode, responseBody);
-                        var result = JSON.parse(responseBody);
-                        if (result.results.bindings[0]) {
-                            var bindings = result.results.bindings;
-                            output = bindings[0][outputVariables[intentNum]].value;
-                            console.log(output);
-                            var outputtext1 = responses[intentNum].replace("@@@placeholder@@@", placeholder);
-                            var outputtext2 = outputtext1.replace("@@@output@@@", output);
-                            console.log(outputtext2);
-                            Twitter.post('statuses/update', {status: outputtext2.substring(0, 139)}, function (error, tweet, response) {
-                                if (error) {
-                                    console.log(error);
-                                }
-                                console.log(tweet);  // Tweet body.
-                                console.log(response);  // Raw response object.
-                            });
-
-                        } else
-                            var outputtext2 = "I don't know the answer to your question.";
-                        Twitter.post('statuses/update', {status: outputtext2.substring(0, 139)}, function (error, tweet, response) {
-                            if (error) {
-                                console.log(error);
-                            }
-                            console.log(tweet);  // Tweet body.
-                            console.log(response);  // Raw response object.
-                        });
-                    }
-                }
-                );
+    if (data.text)
+    {
+        if (data.text.toLowerCase().includes('lisa'))
+        {
+          if (data.text.toLowerCase().includes('english'))
+          {
+            userlanguage = "en";
+            bot.postMessageToChannel('general', languageconfirmation["en"], params);
+          } else if (data.text.toLowerCase().includes('deutsch')) {
+            userlanguage = "de";
+            bot.postMessageToChannel('general', languageconfirmation["de"], params);
+          } else {
+            console.log("do NLU!");
+            doNlu(data.text);
+            console.log("I did NLU!");
             }
-        });
+        }
+        ;
+    }
+    ;
+});
 
-    });
+function doNlu(inputMessage) {
+    console.log("please write: " + inputMessage);
+    bot.postMessageToChannel('general', waitmessage[userlanguage], params);
+    var question = inputMessage.replace("Lisa", '');
+    var request = require('request');
+    request({
+        url: baseUrlAPIAI + "query?v=20150910", //URL to hit
+        //qs: {from: 'blog example', time: +new Date()}, //Query string data
+        method: 'POST',
+        headers: {
+            'Content-Type': "application/json; charset=utf-8",
+            'Authorization': 'Bearer' + accessTokenAPIAI
+        },
+        body: JSON.stringify({query: question, lang: "en", sessionId: "somerandomthing"}) //Set the body as a string
+    }, function (error, response, responseBody) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log(response.statusCode, responseBody);
+            var responseAsJson = JSON.parse(responseBody);
+            var intentNum;
+            if (responseAsJson.result.action === 'show.population') {
+                intentNum = 0;
+                placeholder = responseAsJson.result.parameters.city;
+            } else if (responseAsJson.result.action === 'show.birthday')
+            {
+                intentNum = 1;
+                placeholder = responseAsJson.result.parameters.givenname + " " + responseAsJson.result.parameters.lastname;
+            } else if (responseAsJson.result.action === 'show.persons') {
+                console.log(responseAsJson.result.parameters.programminglanguages);
+                var output = findPersons(responseAsJson.result.parameters.programminglanguages);
+                bot.postMessageToChannel('general', output, params);
+                return;
+            } else
+                return;
+            ;
+            ;
+            // Using the label we got from the NLU output to fill a placeholder slot in the SPARQL query.
+            console.log("placeholder now :" + placeholder);
+            var queryComplete = queries[intentNum].replaceAll("@@@placeholder@@@", placeholder);
+            console.log(queryComplete);
 
-    // ... when we get an error...
-    stream.on('error', function (error) {
-        //print out the error
-        console.log(error);
+            request({
+                url: endpoint + queryComplete,
+                //qs: {from: 'blog example', time: +new Date()}, //Query string data
+                type: 'POST',
+                headers: {
+                }
+            }, function (error, response, responseBody) {
+
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log(response.statusCode, responseBody);
+                    var result = JSON.parse(responseBody);
+                    if (result.results.bindings[0]) {
+                        var bindings = result.results.bindings;
+                        output = bindings[0][outputVariables[intentNum]].value;
+                        console.log(output);
+                        var outputtext1 = responses[intentNum].replace("@@@placeholder@@@", placeholder);
+                        var outputtext2 = outputtext1.replace("@@@output@@@", output);
+                        console.log(outputtext2);
+                        bot.postMessageToChannel('general', outputtext2, params);
+                        return;
+
+                    } else
+                        var outputtext2 = "I don't know the answer to your question.";
+                    bot.postMessageToChannel('general', outputtext2, params);
+                }
+
+            });
+        }
+        ;
     });
-    function findPersons(qualification) 
-{var resultMessage;
+}
+;
+function findPersons(qualification)
+{
+    if (qualification.length === 0) {
+        return "I don't know what qualification you are looking for. Can you re-formulate your question?";
+    }
+    ;
+    var resultMessage;
     var count = 0;
-    for(i = 0; i < myDataBase.persons.length; i++)
+    for (i = 0; i < myDataBase.persons.length; i++)
     {
         var currentQualification = myDataBase.persons[i].qualifications;
         console.log(myDataBase.persons[i].qualifications);
-        if (currentQualification.includes(qualification)) 
-        { count = count +1;};
-    };
-   console.log(count);
-   if(count > 1)
-   {
-       resultMessage = count + " people know about " + qualification + ". I will give you contact details in a private message.";
-   } else if(count === 1)
-       {
-       resultMessage =  "1 person knows about " + qualification + ". I will give you contact details in a private message.";
-   }
-   else
-       (resultMessage = "We don't have people who know " + qualification + ". We should hire some!");
-   return resultMessage;
-};
-});
+        if (currentQualification.includes(qualification))
+        {
+            count = count + 1;
+        }
+        ;
+    }
+    ;
+    console.log(count);
+    if (count > 1)
+    {
+        resultMessage = count + " people know about " + qualification + ". I will give you contact details in a private message.";
+        return resultMessage;
+    } else if (count === 1)
+    {
+        resultMessage = "1 person knows about " + qualification + ". I will give you contact details in a private message.";
+        return resultMessage;
+    } else
+        (resultMessage = "We don't have people who know " + qualification + ". We should hire some!");
+    return resultMessage;
+}
+;

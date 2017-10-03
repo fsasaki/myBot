@@ -1,0 +1,18 @@
+Write nodejs app and text locally
+
+write Procfile that has:
+worker: node app.js
+
+Follow description at https://devcenter.heroku.com/articles/deploying-nodejs to work with heroku, until "git add".
+
+before doing "git add", do heroku login and then heroku create. then do
+heroku git:remote -a -name-of-your-app  (e.g. radiant-depths-56455)
+
+then do
+git add .
+git commit -am "some message"
+git push heroku master
+
+follow on heroku these steps https://github.com/howdyai/botkit/issues/53#issuecomment-218850324 , so that no web process is started and that no port issue arises!
+
+drink a beer
