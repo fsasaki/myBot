@@ -121,7 +121,7 @@ function doNlu(inputMessage) {
                         var bindings = result.results.bindings;
                         output = bindings[0][outputVariables[intentNum]].value;
                         console.log(output);
-                        var outputtext1 = responses[intentNum].replace("@@@placeholder@@@", placeholder);
+                        var outputtext1 = responses[userlanguage][intentNum].replace("@@@placeholder@@@", placeholder);
                         var outputtext2 = outputtext1.replace("@@@output@@@", output);
                         console.log(outputtext2);
                         bot.postMessageToChannel('general', outputtext2, params);
