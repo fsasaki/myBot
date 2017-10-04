@@ -1,4 +1,5 @@
 /node_modules
+accesstokens.js
 npm-debug.log
 .DS_Store
 /*.env

@@ -5,8 +5,10 @@ String.prototype.replaceAll = function (str1, str2, ignore)
     }), "g" + (ignore ? "i" : "")), str2);
 };
 var config = require('./config');
+var moment = require ('moment');
 var userlanguage = "en";
 var languageconfirmation = config.languageconfirmation;
+var birthdatepicturestring = config.birthdatepicturestring;
 var endpoint = config.endpoint;
 var queries = config.queries;
 var responses = config.responses;
@@ -14,7 +16,7 @@ var outputVariables = config.outputVariables;
 var myDataBase = config.myDataBase;
 var waitmessage = config.waitmessage;
 var placeholder;
-var accessTokenAPIAI = config.accessTokenAPIAI;
+var accessTokenAPIAI = config.accessTokenAPIAI[userlanguage];
 var baseUrlAPIAI = config.baseUrlAPIAPI;
 var SlackBot = require('slackbots');
 var params = {
@@ -47,9 +49,11 @@ bot.on('message', function (data) {
           if (data.text.toLowerCase().includes('english'))
           {
             userlanguage = "en";
+            accessTokenAPIAI = config.accessTokenAPIAI["en"];
             bot.postMessageToChannel('general', languageconfirmation["en"], params);
           } else if (data.text.toLowerCase().includes('deutsch')) {
             userlanguage = "de";
+            accessTokenAPIAI = config.accessTokenAPIAI["de"];
             bot.postMessageToChannel('general', languageconfirmation["de"], params);
           } else {
             console.log("do NLU!");
@@ -61,6 +65,20 @@ bot.on('message', function (data) {
     }
     ;
 });
+
+function formatoutput(intentNum, value) {
+switch (intentNum) {
+  case 0:
+return value;
+    break;
+    case 1:
+    var a = moment(value);
+    a.locale(userlanguage);
+    return a.format(birthdatepicturestring[userlanguage]);
+  default:
+return value;
+}
+};
 
 function doNlu(inputMessage) {
     console.log("please write: " + inputMessage);
@@ -119,7 +137,7 @@ function doNlu(inputMessage) {
                     var result = JSON.parse(responseBody);
                     if (result.results.bindings[0]) {
                         var bindings = result.results.bindings;
-                        output = bindings[0][outputVariables[intentNum]].value;
+                        output = formatoutput(intentNum,bindings[0][outputVariables[intentNum]].value);
                         console.log(output);
                         var outputtext1 = responses[userlanguage][intentNum].replace("@@@placeholder@@@", placeholder);
                         var outputtext2 = outputtext1.replace("@@@output@@@", output);
