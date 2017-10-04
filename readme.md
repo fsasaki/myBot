@@ -1,8 +1,8 @@
-#Multillingual Chatbot for Wikipedia queries and slack integration
+# Multillingual Chatbot for Wikipedia queries and slack integration
 
 This repository contains a multilingual chatbot that can query Wikipedia and provide answers on slack. The bot can be asked in English or German and provide localized answers in both languages.
 
-##Installation
+## Installation
 
 You need 
 
