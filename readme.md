@@ -2,16 +2,30 @@
 
 This repository contains a multilingual chatbot that can query Wikipedia and provide answers on slack. The bot can be asked in English or German and provide localized answers in both languages.
 
-## Installation
+## General installation
 
 You need 
 
 
-- npm
-- slack
-- api.ai
+- node.js
+- A slack account
+- An api.ai account
 
 to run the bot.
+
+### Slack preparation
+
+
+- Create a custom slack bot user, see documentation at https://api.slack.com/bot-users .
+- In the integration settings of your bot, generate an API token. You will need that below.
+
+### api.ai preparation
+
+- Create two new agents called AskLinkedData (the English agent) and FrageLinkedData (the German agent)
+- Upload the settings of these agents from https://github.com/fsasaki/myBot/tree/master/agents
+- Both agents have an access token. You will need that below.
+
+### Bot setup
 
 Download this repository. Add into the local repository folder a file accesstokens.js which looks as follows:
 
@@ -21,6 +35,8 @@ accesstokens.accessTokenAPIAI = {"en" : "accesstoken-for-english-agent", "de" : 
 accesstokens.slackbottoken = "slackbot-token";
 module.exports = accesstokens;
 ```
+
+## Use the bot
 
 Start the bot locally with
 
