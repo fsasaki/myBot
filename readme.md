@@ -46,7 +46,11 @@ npm start
 
 This will add a bot to your slack channel which you can interact with as shown in the following screenshot.
 
-![Slackbot interaction example](example.png)
+![Slackbot interaction example](example-general.png)
+
+The following example shows how to use the bot to get translations. The data source for this example is Wikidata.
+
+![Slackbot translations example](example-of-translations.png)
 
 ## Installation in herkoku
 
