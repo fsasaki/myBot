@@ -9,6 +9,8 @@ var moment = require ('moment');
 var languages = require('./languages');
 var userlanguage = "en";
 var languageconfirmation = config.languageconfirmation;
+var languagechange = config.languagechange;
+var noanswer = config.noanswer;
 var birthdatepicturestring = config.birthdatepicturestring;
 var endpoint = config.endpoint;
 var queries = config.queries;
@@ -47,12 +49,12 @@ bot.on('message', function (data) {
   {
     if (data.text.toLowerCase().includes('lisa'))
     {
-      if (data.text.toLowerCase().includes('english'))
+        if (data.text.toLowerCase().match(languagechange["en"]))
       {
         userlanguage = "en";
         accessTokenAPIAI = config.accessTokenAPIAI["en"];
         bot.postMessageToChannel('general', languageconfirmation["en"], params);
-      } else if (data.text.toLowerCase().includes('deutsch')) {
+      } else if (data.text.toLowerCase().match(languagechange["de"])) {
         userlanguage = "de";
         accessTokenAPIAI = config.accessTokenAPIAI["de"];
         bot.postMessageToChannel('general', languageconfirmation["de"], params);
@@ -99,6 +101,7 @@ function doNlu(inputMessage) {
   }, function (error, response, responseBody) {
     if (error) {
       console.log(error);
+      bot.postMessageToChannel('general', noanswer[userlanguage], params);
     } else {
       console.log(response.statusCode, responseBody);
       var responseAsJson = JSON.parse(responseBody);
@@ -126,8 +129,10 @@ function doNlu(inputMessage) {
         var output = findPersons(responseAsJson.result.parameters.programminglanguages);
         bot.postMessageToChannel('general', output, params);
         return;
-      } else
+      } else {
+      bot.postMessageToChannel('general', noanswer[userlanguage], params);
       return;
+      }
       ;
       ;
       // Using the label we got from the NLU output to fill a placeholder slot in the SPARQL query.
@@ -152,7 +157,7 @@ function doNlu(inputMessage) {
       };
       console.log(queryComplete);
       request({
-        url: endpoint + queryComplete,
+        url: endpoint + encodeURI(queryComplete),
         //qs: {from: 'blog example', time: +new Date()}, //Query string data
         type: 'POST',
         headers: {
@@ -162,8 +167,10 @@ function doNlu(inputMessage) {
       }, function (error, response, responseBody) {
         if (error) {
           console.log(error);
+          bot.postMessageToChannel('general', noanswer[userlanguage], params);
         } else {
           console.log(response.statusCode, responseBody);
+          if(response.statusCode === 200) {
           var result = JSON.parse(responseBody);
           if (result.results.bindings[0]) {
             var bindings = result.results.bindings;
@@ -176,10 +183,10 @@ function doNlu(inputMessage) {
             return;
 
           } else
-          var outputtext2 = "I don't know the answer to your question.";
-          bot.postMessageToChannel('general', outputtext2, params);
+          bot.postMessageToChannel('general', noanswer[userlanguage], params);
+}
+else bot.postMessageToChannel('general', noanswer[userlanguage], params);
         }
-
       });
     }
     ;
