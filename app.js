@@ -76,8 +76,10 @@ function formatoutput(intentNum, value) {
     break;
     case 1:
     var a = moment(value);
+    if (a.isValid()){
     a.locale(userlanguage);
     return a.format(birthdatepicturestring[userlanguage]);
+  } else return value;
     default:
     return value;
   }
