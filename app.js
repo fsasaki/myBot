@@ -11,6 +11,8 @@ var userlanguage = "en";
 var languageconfirmation = config.languageconfirmation;
 var languagechange = config.languagechange;
 var noanswer = config.noanswer;
+var showcapabilities = config.showcapabilities;
+var helpme = config.helpme;
 var birthdatepicturestring = config.birthdatepicturestring;
 var endpoint = config.endpoint;
 var queries = config.queries;
@@ -131,7 +133,16 @@ function doNlu(inputMessage) {
         var output = findPersons(responseAsJson.result.parameters.programminglanguages);
         bot.postMessageToChannel('general', output, params);
         return;
-      } else {
+      }
+      else if (responseAsJson.result.action === 'show.capabilities') {
+        bot.postMessageToChannel('general', showcapabilities[userlanguage], params);
+        return;
+      }
+      else if (responseAsJson.result.action === 'help') {
+        bot.postMessageToChannel('general', helpme[userlanguage], params);
+        return;
+      }
+       else {
       bot.postMessageToChannel('general', noanswer[userlanguage], params);
       return;
       }
