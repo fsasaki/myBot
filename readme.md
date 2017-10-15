@@ -52,6 +52,27 @@ The following example shows how to use the bot to get translations. The data sou
 
 ![Slackbot translations example](example-of-translations.png)
 
+## What can the bot do?
+
+The bot can answer to the following type of questions:
+
+* How many people live in (name of a city)? E.g., how many people live in Berlin?
+* What is the birthday of (name of a person)? E.g., what is the birthday of John Lennon?
+* Translate (a term) from (source language) into (target language). E.g., translate beer from English to Japanese.
+* Define (an entity). E.g, define Sushi
+* Tell me what you can do.
+* Help!
+
+The bot is triggered by starting input with "Lisa, ". A question to the bot then can look as follows.
+
+```
+Lisa, how many people live in Berlin?
+Lisa, what is the birthday of George Harrison?
+Lisa, translate beer to Japanese.
+Lisa, define George Harrison.
+Lisa, help!
+```
+
 ## Installation in herkoku
 
 Below is what you need to do to install the bot in the heroku cloud service.

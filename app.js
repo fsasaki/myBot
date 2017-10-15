@@ -14,7 +14,7 @@ var noanswer = config.noanswer;
 var showcapabilities = config.showcapabilities;
 var helpme = config.helpme;
 var birthdatepicturestring = config.birthdatepicturestring;
-var endpoint = config.endpoint;
+var endpoint;
 var queries = config.queries;
 var responses = config.responses;
 var outputVariables = config.outputVariables;
@@ -111,22 +111,27 @@ function doNlu(inputMessage) {
       var responseAsJson = JSON.parse(responseBody);
       var intentNum;
       if (responseAsJson.result.action === 'show.population') {
-        endpoint = config.endpoint;
+        endpoint = config.dbpediaendpoints["en"];
         intentNum = 0;
         placeholder = responseAsJson.result.parameters.city;
       } else if (responseAsJson.result.action === 'show.birthday')
       {
-        endpoint = config.endpoint;
+        endpoint = config.dbpediaendpoints["en"];
         intentNum = 1;
         placeholder = responseAsJson.result.parameters.givenname + " " + responseAsJson.result.parameters.lastname;
       }
       else if (responseAsJson.result.action === 'translate.term')
       {
-        endpoint = config.endpoint;
         intentNum = 2;
         placeholder = responseAsJson.result.parameters.term;
         endpoint = config.wikidataEndpoint;
         console.log ("translation with term " + placeholder);
+      }
+      else if (responseAsJson.result.action === 'show.definition')
+      {
+        endpoint = config.dbpediaendpoints[userlanguage];
+        intentNum = 3;
+        placeholder = responseAsJson.result.parameters.any;
       }
       else if (responseAsJson.result.action === 'show.persons') {
         console.log(responseAsJson.result.parameters.programminglanguages);
@@ -167,6 +172,9 @@ function doNlu(inputMessage) {
         console.log(targetlanguagetag);
         queryComplete = queryComplete.replaceAll("@@@targetlanguage@@@", targetlanguagetag);
         queryComplete = queryComplete.replaceAll("@@@sourcelanguage@@@", sourcelanguagetag);
+      };
+      if(intentNum === 3) {
+        queryComplete = queryComplete.replaceAll("@@@sourcelanguage@@@", userlanguage);
       };
       console.log(queryComplete);
       request({
