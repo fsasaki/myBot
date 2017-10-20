@@ -24,6 +24,9 @@ var placeholder;
 var accessTokenAPIAI = config.accessTokenAPIAI[userlanguage];
 var baseUrlAPIAI = config.baseUrlAPIAPI;
 var SlackBot = require('slackbots');
+var fulfillment = "";
+var sessionId = "somerandomthing";
+var contexts = [];
 var params = {
   icon_emoji: ':cat:'
 };
@@ -101,7 +104,7 @@ function doNlu(inputMessage) {
       'Authorization': 'Bearer' + accessTokenAPIAI,
       'Accept' : 'application/json'
     },
-    body: JSON.stringify({query: question, lang: "en", sessionId: "somerandomthing"}) //Set the body as a string
+    body: JSON.stringify({query: question, lang: "en", sessionId: sessionId, contexts : contexts}) //Set the body as a string
   }, function (error, response, responseBody) {
     if (error) {
       console.log(error);
@@ -159,6 +162,13 @@ function doNlu(inputMessage) {
       var queryComplete = queries[intentNum].replaceAll("@@@placeholder@@@", placeholder);
       if(intentNum === 2) {
         console.log(responseAsJson);
+        if(responseAsJson.result.parameters.targetlanguage === "")
+        {
+          fulfillment = responseAsJson.result.fulfillment.speech;
+          contexts = responseAsJson.result.contexts;
+          bot.postMessageToChannel('general', fulfillment, params);
+          return;
+        } else
         var targetlanguage = responseAsJson.result.parameters.targetlanguage.toLowerCase();
         var targetlanguagetag = languages.mappings[userlanguage][targetlanguage];
         var sourcelanguagetag = userlanguage;
@@ -176,6 +186,8 @@ function doNlu(inputMessage) {
       if(intentNum === 3) {
         queryComplete = queryComplete.replaceAll("@@@sourcelanguage@@@", userlanguage);
       };
+      sessionId = Math.floor(100000000 + Math.random() * 900000000);
+      contexts = [];
       console.log(queryComplete);
       request({
         url: endpoint + encodeURI(queryComplete),

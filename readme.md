@@ -4,7 +4,7 @@ This repository contains a multilingual chatbot that can query Wikipedia and pro
 
 ## General installation
 
-You need 
+You need
 
 
 - node.js
@@ -62,6 +62,8 @@ The bot can answer to the following type of questions:
 * Define (an entity). E.g, define Sushi
 * Tell me what you can do.
 * Help!
+
+The translation intent has some context handling. If the bot does not understand the target language, it will try to confirm it.
 
 The bot is triggered by starting input with "Lisa, ". A question to the bot then can look as follows.
 
