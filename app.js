@@ -92,7 +92,7 @@ function formatoutput(intentNum, value) {
 
 function doNlu(inputMessage) {
   console.log("please write: " + inputMessage);
-  bot.postMessageToChannel('general', waitmessage[userlanguage], params);
+  /*bot.postMessageToChannel('general', waitmessage[userlanguage], params); */
   var question = inputMessage.replace("Lisa", '');
   var request = require('request');
   request({
@@ -112,6 +112,22 @@ function doNlu(inputMessage) {
     } else {
       console.log(response.statusCode, responseBody);
       var responseAsJson = JSON.parse(responseBody);
+        if (responseAsJson.result.action === 'input.unknown') {
+          fulfillment = responseAsJson.result.fulfillment.speech;
+          contexts = responseAsJson.result.contexts;
+          bot.postMessageToChannel('general', fulfillment, params);
+          return;
+        }
+        else
+      if(responseAsJson.result.actionIncomplete === true)
+      {
+        fulfillment = responseAsJson.result.fulfillment.speech;
+        contexts = responseAsJson.result.contexts;
+        bot.postMessageToChannel('general', fulfillment, params);
+        return;
+      } else
+      fulfillment = responseAsJson.result.fulfillment.speech;
+      bot.postMessageToChannel('general', fulfillment, params);
       var intentNum;
       if (responseAsJson.result.action === 'show.population') {
         endpoint = config.dbpediaendpoints["en"];
@@ -162,13 +178,6 @@ function doNlu(inputMessage) {
       var queryComplete = queries[intentNum].replaceAll("@@@placeholder@@@", placeholder);
       if(intentNum === 2) {
         console.log(responseAsJson);
-        if(responseAsJson.result.parameters.targetlanguage === "")
-        {
-          fulfillment = responseAsJson.result.fulfillment.speech;
-          contexts = responseAsJson.result.contexts;
-          bot.postMessageToChannel('general', fulfillment, params);
-          return;
-        } else
         var targetlanguage = responseAsJson.result.parameters.targetlanguage.toLowerCase();
         var targetlanguagetag = languages.mappings[userlanguage][targetlanguage];
         var sourcelanguagetag = userlanguage;
