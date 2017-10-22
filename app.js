@@ -22,11 +22,16 @@ var myDataBase = config.myDataBase;
 var waitmessage = config.waitmessage;
 var placeholder;
 var accessTokenAPIAI = config.accessTokenAPIAI[userlanguage];
+var accessTokenAPIAIdevelopers = config.accessTokenAPIAIdevelopers[userlanguage];
+var addsentencetointent = config.addsentencetointent;
+var intentconfirmation = config.intentconfirmation;
 var baseUrlAPIAI = config.baseUrlAPIAPI;
 var SlackBot = require('slackbots');
+var request = require('request');
 var fulfillment = "";
 var sessionId = "somerandomthing";
 var contexts = [];
+var intentId = "";
 var params = {
   icon_emoji: ':cat:'
 };
@@ -63,7 +68,11 @@ bot.on('message', function (data) {
         userlanguage = "de";
         accessTokenAPIAI = config.accessTokenAPIAI["de"];
         bot.postMessageToChannel('general', languageconfirmation["de"], params);
-      } else {
+      } else if (data.text.toLowerCase().match(addsentencetointent[userlanguage])) {
+        var sentence = data.text.substring(data.text.indexOf(":") + 2, data.text.length);
+        trainintent(sentence);
+      }
+       else {
         console.log("do NLU!");
         doNlu(data.text);
         console.log("I did NLU!");
@@ -73,6 +82,58 @@ bot.on('message', function (data) {
   }
   ;
 });
+
+function trainintent(sentence) {
+  console.log(intentId);
+  url = "https://api.api.ai/v1/intents/" + intentId + "?v=20150910";
+  console.log(url);
+  accessTokenAPIAIdevelopers = config.accessTokenAPIAIdevelopers[userlanguage];
+  request({
+    url: url,
+    method: "GET",
+    headers: {
+      'Content-Type': "application/json; charset=utf-8",
+      'Authorization': 'Bearer' + accessTokenAPIAIdevelopers,
+      'Accept' : 'application/json'
+    },
+  }, function (error, response, responseBody) {
+    if (error) {
+      console.log(error)
+    } else {
+      var intent = JSON.parse(responseBody);
+      console.log(responseBody);
+      console.log("access token api developer is " + accessTokenAPIAIdevelopers);
+      if(response.statusCode != 200){
+        bot.postMessageToChannel('general',responseBody, params);
+      } else
+      var trainingdata =       { "data": [                 {                     "text": "data comes here"                 }             ],             "isTemplate": false,             "count": 0,          "isAuto": false         };
+      var newText = { "text" : sentence};
+      trainingdata.data.splice(0,1,newText);
+      intent.userSays.push(trainingdata);
+console.log(JSON.stringify(intent));
+    }
+    request({
+      url: url,
+      method: "PUT",
+      headers: {
+        'Content-Type': "application/json; charset=utf-8",
+        'Authorization': 'Bearer' + accessTokenAPIAIdevelopers,
+        'Accept' : 'application/json'
+      },
+      body: JSON.stringify(intent)
+    }, function (error, response, responseBody) {
+      if (error) {
+        console.log(error)
+      } else {
+        console.log(responseBody);
+        bot.postMessageToChannel('general', intentconfirmation[userlanguage] + intent.name + ", " + sentence, params);
+      }
+    }
+  )
+  }
+)
+}
+;
 
 function formatoutput(intentNum, value) {
   switch (intentNum) {
@@ -94,7 +155,6 @@ function doNlu(inputMessage) {
   console.log("please write: " + inputMessage);
   /*bot.postMessageToChannel('general', waitmessage[userlanguage], params); */
   var question = inputMessage.replace("Lisa", '');
-  var request = require('request');
   request({
     url: baseUrlAPIAI + "query?v=20150910", //URL to hit
     //qs: {from: 'blog example', time: +new Date()}, //Query string data
@@ -126,6 +186,8 @@ function doNlu(inputMessage) {
         bot.postMessageToChannel('general', fulfillment, params);
         return;
       } else
+      intentId = responseAsJson.result.metadata.intentId;
+      console.log("Intent ID is " + intentId);
       fulfillment = responseAsJson.result.fulfillment.speech;
       bot.postMessageToChannel('general', fulfillment, params);
       var intentNum;
@@ -195,8 +257,8 @@ function doNlu(inputMessage) {
       if(intentNum === 3) {
         queryComplete = queryComplete.replaceAll("@@@sourcelanguage@@@", userlanguage);
       };
-      sessionId = Math.floor(100000000 + Math.random() * 900000000);
-      contexts = [];
+/*      sessionId = Math.floor(100000000 + Math.random() * 900000000);
+      contexts = [];*/
       console.log(queryComplete);
       request({
         url: endpoint + encodeURI(queryComplete),
