@@ -257,8 +257,8 @@ function doNlu(inputMessage) {
       if(intentNum === 3) {
         queryComplete = queryComplete.replaceAll("@@@sourcelanguage@@@", userlanguage);
       };
-/*      sessionId = Math.floor(100000000 + Math.random() * 900000000);
-      contexts = [];*/
+      sessionId = Math.floor(100000000 + Math.random() * 900000000);
+      contexts = [];
       console.log(queryComplete);
       request({
         url: endpoint + encodeURI(queryComplete),
