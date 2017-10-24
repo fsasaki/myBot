@@ -75,6 +75,24 @@ Lisa, define George Harrison.
 Lisa, help!
 ```
 
+## Train intents
+
+You can train the bot with example sentences. To do this, first trigger the intent with the question that the bot understands. See the list above for examples. Then, type "train intent:" followed by the training sentence, or for the German version "trainiere intent:". Everything after the column character ":" will be added to the training set for the intent. An example is given below.
+
+```
+Lisa, when is the birthday of Karl May?
+I will check about the birthday of Karl May, hold on.
+The birthday of Karl May is February 25th 1842.
+Lisa, train intent: When was Karl May born?
+I have changed an itent, see the intent name and the sentence added. What is the birthday of a person?, When was Karl May born?
+```
+
+To be able to do the intent training, node.js needs the developers token of api.ai. Add it to the  accesstokens.js file as follows.
+
+```
+accesstokens.accessTokenAPIAIdevelopers = {"en" : "developers token for English", "de" : "developers token for German"};
+```
+
 ## Installation in herkoku
 
 Below is what you need to do to install the bot in the heroku cloud service.
