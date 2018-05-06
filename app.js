@@ -153,15 +153,17 @@ function formatoutput(intentNum, value) {
 
 function doNlu(inputMessage) {
   console.log("please write: " + inputMessage);
-  /*bot.postMessageToChannel('general', waitmessage[userlanguage], params); */
+  console.log("uri: " + baseUrlAPIAI + "query?v=20150910");
   var question = inputMessage.replace("Lisa", '');
+  console.log(JSON.stringify({query: question, lang: "en", sessionId: sessionId, contexts : contexts}));
+  /*bot.postMessageToChannel('general', waitmessage[userlanguage], params); */
   request({
     url: baseUrlAPIAI + "query?v=20150910", //URL to hit
     //qs: {from: 'blog example', time: +new Date()}, //Query string data
     method: 'POST',
     headers: {
       'Content-Type': "application/json; charset=utf-8",
-      'Authorization': 'Bearer' + accessTokenAPIAI,
+      'Authorization': "Bearer " + accessTokenAPIAI,
       'Accept' : 'application/json'
     },
     body: JSON.stringify({query: question, lang: "en", sessionId: sessionId, contexts : contexts}) //Set the body as a string
