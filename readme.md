@@ -98,6 +98,11 @@ accesstokens.accessTokenAPIAIdevelopers = {"en" : "developers token for English"
 Questions often contain entities, like "Karl May" in "when is the birthday of Karl May". You can use knowledge source like 
 [Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page) to fill your lists of entities. For example, we can get more than 20.000 labels for the entity "givenname", used in the forehand mentioned query. 
 
+Gathering labels from Wikidata may lead to a query timeout. To avoid this, the SPARQL "offset" keyword can be helpful. See an exampe at 
+[http://tinyurl.com/y8hfgewl](http://tinyurl.com/y8hfgewl) (thanks to 
+
+[WikidataFacts](https://twitter.com/WikidataFacts/status/1071824319507062786) for the suggestion).
+
 ## Installation in herkoku
 
 Below is what you need to do to install the bot in the heroku cloud service.
