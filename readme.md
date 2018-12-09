@@ -93,6 +93,11 @@ To be able to do the intent training, node.js needs the developers token of api.
 accesstokens.accessTokenAPIAIdevelopers = {"en" : "developers token for English", "de" : "developers token for German"};
 ```
 
+## Enlarge entities with Wikidata
+
+Questions often contain entities, like "Karl May" in "when is the birthday of Karl May". You can use knowledge source like 
+[Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page) to fill your lists of entities. For example, we can get more than 20.000 labels for the entity "givenname", used in the forehand mentioned query. 
+
 ## Installation in herkoku
 
 Below is what you need to do to install the bot in the heroku cloud service.
